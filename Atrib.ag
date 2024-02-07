@@ -1,6 +1,7 @@
 {
 type Lista = [String]
 type String2 = String
+type String3 = String
 
 fencontrar y t@(x:xs) | y `elem` t = [] 
                       | otherwise = y:[] 
@@ -37,11 +38,11 @@ DATA Sentencias | Se Sentencia Sentencias
                   | VacioC
 
 DATA Sentencia | Sen String TipoSentencia
-               | Sen1 String String2     
+               | Sen1 String String2
+               | Sen2 String String2    
 
-DATA TipoSentencia | T1 String
-                   | T2 String
-                   | T3 String Parametros 
+DATA TipoSentencia | T2 String
+                   | T3 String String2 String3 
 
 DATA Inicio | In String  
 
@@ -52,7 +53,7 @@ DATA Expresion | Expre String String2
                | Expre4 String   
 
 
-ATTR Programa       [   |   |  u1:Lista d:Lista k:Lista cod:String]
+ATTR Programa       [   |   |  u1:Lista d:Lista k:Lista cod:String ]
 ATTR Funciones      [   |   |  u1:Lista d:Lista k:Lista cod:String] 
 ATTR Funcion        [   |   |  d:Lista u1:Lista k:Lista cod:String]
 ATTR Parametros     [   |   |  d:Lista u:Lista  k:Lista cod:String]
@@ -60,8 +61,8 @@ ATTR CodFuncion     [   |   |  d:Lista u:Lista cod:String]
 ATTR CodCondicional [   |   |  d:Lista u:Lista cod:String] 
 ATTR CodCondResp    [   |   |  d:Lista cod:String] 
 ATTR Main           [   |   |  cod:String]                   
-ATTR Sentencias     [   |   |  cod:String]
-ATTR Sentencia      [   |   |  cod:String]    
+ATTR Sentencias     [   |   |  cod:String ]
+ATTR Sentencia      [   |   |  cod:String ]    
 ATTR TipoSentencia  [   |   |  cod:String]
 ATTR Expresion      [   |   |  u:Lista cod:String]    
 
@@ -70,7 +71,9 @@ SEM Programa
 | Pro lhs.u1 = @funciones.u1
       lhs.d = @funciones.d
       lhs.k = @funciones.k 
-      lhs.cod = @funciones.cod ++ @main.cod 
+      lhs.cod = "#include <iostream>" ++ "\n" ++
+                 "using namespace std;" ++ "\n" ++ 
+                 @funciones.cod ++ @main.cod 
           
 SEM Funciones 
 | Fu lhs.d = @funcion.d ++ @funciones.d 
@@ -95,12 +98,12 @@ SEM Parametros
 | Pa  lhs.d = @string:[] ++ @string2:[]
       lhs.u = @string:[] ++ @string2:[]
       lhs.k = @string:[] ++ @string2:[]
-      lhs.cod = @string ++ "," ++ @string2 
+      lhs.cod = "int " ++ @string ++ ", " ++ "int " ++ @string2 
         
 SEM CodFuncion 
 | Co1 lhs.d = @string:[]
       lhs.u = @expresion.u ++ @string2:[]
-      lhs.cod = " int " ++ @string ++ " = " ++ @expresion.cod ++ "\n" ++
+      lhs.cod = " int " ++ @string ++ " = " ++ @expresion.cod ++ ";" ++ "\n" ++
                 " return " ++ @string2 ++ ";"  
 | Co2 lhs.d = @codCondicional.d
       lhs.u = @string:[]
@@ -110,20 +113,20 @@ SEM CodFuncion
                   " } else {" ++ "\n" ++ 
                   @codCondResp.cod ++ "\n" ++
                   " }" ++ "\n" ++
-                  "return " ++ @string
+                  "return " ++ @string ++ ";"
 
 SEM CodCondicional 
 | CodCon1 lhs.d = @string:[]
           lhs.u = @expresion.u
-          lhs.cod = "   " ++ @string ++ " = " ++ @expresion.cod  
+          lhs.cod = "   " ++ @string ++ " = " ++ @expresion.cod ++ ";"  
 
 SEM CodCondResp
 | Resp lhs.d = @string:[]
-       lhs.cod = "   " ++ @string ++ " = 0" ++ "\n" ++    
+       lhs.cod = "   " ++ @string ++ " = 0;" ++ "\n" ++    
                  "   " ++ "cout <<" ++ @string2 ++ "<< endl ;"
 
 SEM Main 
-| Ma lhs.cod = "int mian() {" ++ "\n" ++
+| Ma lhs.cod = "int main() {" ++ "\n" ++
                    @sentencias.cod ++
                     "}"
 
@@ -132,14 +135,15 @@ SEM Sentencias
 | VacioC    lhs.cod = ""
 
 SEM Sentencia 
-| Sen       lhs.cod = "   " ++ @string ++ " = " ++ @tipoSentencia.cod
-| Sen1      lhs.cod = "   cout << " ++ @string ++ " << " ++ @string2 ++ "<< endl ;"     
+| Sen       lhs.cod = "   int " ++ @string ++ " = " ++ @tipoSentencia.cod
+| Sen1      lhs.cod = "   cout << " ++ @string ++ " << " ++ @string2 ++ "<< endl ;" 
+| Sen2      lhs.cod = "   string " ++ @string ++ ";" ++ "\n" ++
+                      "   cout << " ++ @string2 ++ "; "  ++ "\n" ++ "   cin >> " ++ @string ++ ";"  
 
-SEM TipoSentencia 
-| T1 lhs.cod =  "cout <<" ++ @string ++ ";"
-| T2 lhs.cod = "stoi (" ++ @string ++ ");" 
-| T3 lhs.cod = @string ++ "(" ++ @parametros.cod ++ ");"                      
- 
+SEM TipoSentencia  
+| T2 lhs.cod = "stoi(" ++ @string ++ ");" 
+| T3 lhs.cod = "" ++ @string ++ "(" ++ @string2 ++ ", " ++ @string3 ++ ");"
+                    
 
 SEM Expresion 
 | Expre lhs.u = @string:[] ++ @string2:[]

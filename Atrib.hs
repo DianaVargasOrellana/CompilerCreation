@@ -3,6 +3,7 @@ module Atrib where
 
 type Lista = [String]
 type String2 = String
+type String3 = String
 
 fencontrar y t@(x:xs) | y `elem` t = [] 
                       | otherwise = y:[] 
@@ -42,7 +43,7 @@ sem_CodCondResp_Resp :: (String) ->
                         (T_CodCondResp)
 sem_CodCondResp_Resp (_string) (_string2) =
     let 
-    in  ("   " ++ _string ++ " = 0" ++ "\n" ++
+    in  ("   " ++ _string ++ " = 0;" ++ "\n" ++
          "   " ++ "cout <<" ++ _string2 ++ "<< endl ;"
         ,_string:[]
         )
@@ -76,7 +77,7 @@ sem_CodCondicional_CodCon1 :: (String) ->
 sem_CodCondicional_CodCon1 (_string) (_expresion) =
     let ( _expresion_cod,_expresion_u) =
             (_expresion )
-    in  ("   " ++ _string ++ " = " ++ _expresion_cod,_string:[],_expresion_u)
+    in  ("   " ++ _string ++ " = " ++ _expresion_cod ++ ";",_string:[],_expresion_u)
 -- CodFuncion --------------------------------------------------
 {-
    inherited attributes:
@@ -115,7 +116,7 @@ sem_CodFuncion_Co1 :: (String) ->
 sem_CodFuncion_Co1 (_string) (_expresion) (_string2) =
     let ( _expresion_cod,_expresion_u) =
             (_expresion )
-    in  (" int " ++ _string ++ " = " ++ _expresion_cod ++ "\n" ++
+    in  (" int " ++ _string ++ " = " ++ _expresion_cod ++ ";" ++ "\n" ++
          " return " ++ _string2 ++ ";"
         ,_string:[]
         ,_expresion_u ++ _string2:[]
@@ -138,7 +139,7 @@ sem_CodFuncion_Co2 (_expresion) (_codCondicional) (_codCondResp) (_string) =
           " } else {" ++ "\n" ++
           _codCondResp_cod ++ "\n" ++
           " }" ++ "\n" ++
-          "return " ++ _string
+          "return " ++ _string ++ ";"
         ,_codCondicional_d
         ,_string:[]
         )
@@ -362,7 +363,7 @@ sem_Main_Ma :: (T_Sentencias) ->
 sem_Main_Ma (_sentencias) =
     let ( _sentencias_cod) =
             (_sentencias )
-    in  ("int mian() {" ++ "\n" ++
+    in  ("int main() {" ++ "\n" ++
              _sentencias_cod ++
               "}"
         )
@@ -396,7 +397,7 @@ sem_Parametros_Pa :: (String) ->
                      (T_Parametros)
 sem_Parametros_Pa (_string) (_string2) =
     let 
-    in  (_string ++ "," ++ _string2,_string:[] ++ _string2:[],_string:[] ++ _string2:[],_string:[] ++ _string2:[])
+    in  ("int " ++ _string ++ ", " ++ "int " ++ _string2,_string:[] ++ _string2:[],_string:[] ++ _string2:[],_string:[] ++ _string2:[])
 -- Programa ----------------------------------------------------
 {-
    inherited attributes:
@@ -431,7 +432,13 @@ sem_Programa_Pro (_funciones) (_main) (_inicio) =
             (_funciones )
         ( _main_cod) =
             (_main )
-    in  (_funciones_cod ++ _main_cod,_funciones_d,_funciones_k,_funciones_u1)
+    in  ("#include <iostream>" ++ "\n" ++
+          "using namespace std;" ++ "\n" ++
+          _funciones_cod ++ _main_cod
+        ,_funciones_d
+        ,_funciones_k
+        ,_funciones_u1
+        )
 -- Sentencia ---------------------------------------------------
 {-
    inherited attributes:
@@ -450,8 +457,13 @@ sem_Programa_Pro (_funciones) (_main) (_inicio) =
    local variables for Sentencia.Sen1:
 
 -}
+{-
+   local variables for Sentencia.Sen2:
+
+-}
 data Sentencia = Sentencia_Sen (String) (TipoSentencia)
                | Sentencia_Sen1 (String) (String2)
+               | Sentencia_Sen2 (String) (String2)
 -- semantic domain
 type T_Sentencia = ((String))
 -- cata
@@ -461,19 +473,29 @@ sem_Sentencia ((Sentencia_Sen (_string) (_tipoSentencia))) =
     (sem_Sentencia_Sen (_string) ((sem_TipoSentencia (_tipoSentencia))))
 sem_Sentencia ((Sentencia_Sen1 (_string) (_string2))) =
     (sem_Sentencia_Sen1 (_string) (_string2))
+sem_Sentencia ((Sentencia_Sen2 (_string) (_string2))) =
+    (sem_Sentencia_Sen2 (_string) (_string2))
 sem_Sentencia_Sen :: (String) ->
                      (T_TipoSentencia) ->
                      (T_Sentencia)
 sem_Sentencia_Sen (_string) (_tipoSentencia) =
     let ( _tipoSentencia_cod) =
             (_tipoSentencia )
-    in  ("   " ++ _string ++ " = " ++ _tipoSentencia_cod)
+    in  ("   int " ++ _string ++ " = " ++ _tipoSentencia_cod)
 sem_Sentencia_Sen1 :: (String) ->
                       (String2) ->
                       (T_Sentencia)
 sem_Sentencia_Sen1 (_string) (_string2) =
     let 
     in  ("   cout << " ++ _string ++ " << " ++ _string2 ++ "<< endl ;")
+sem_Sentencia_Sen2 :: (String) ->
+                      (String2) ->
+                      (T_Sentencia)
+sem_Sentencia_Sen2 (_string) (_string2) =
+    let 
+    in  ("   string " ++ _string ++ ";" ++ "\n" ++
+         "   cout << " ++ _string2 ++ "; "  ++ "\n" ++ "   cin >> " ++ _string ++ ";"
+        )
 -- Sentencias --------------------------------------------------
 {-
    inherited attributes:
@@ -527,10 +549,6 @@ sem_Sentencias_VacioC  =
 
 -}
 {-
-   local variables for TipoSentencia.T1:
-
--}
-{-
    local variables for TipoSentencia.T2:
 
 -}
@@ -538,35 +556,27 @@ sem_Sentencias_VacioC  =
    local variables for TipoSentencia.T3:
 
 -}
-data TipoSentencia = TipoSentencia_T1 (String)
-                   | TipoSentencia_T2 (String)
-                   | TipoSentencia_T3 (String) (Parametros)
+data TipoSentencia = TipoSentencia_T2 (String)
+                   | TipoSentencia_T3 (String) (String2) (String3)
 -- semantic domain
 type T_TipoSentencia = ((String))
 -- cata
 sem_TipoSentencia :: (TipoSentencia) ->
                      (T_TipoSentencia)
-sem_TipoSentencia ((TipoSentencia_T1 (_string))) =
-    (sem_TipoSentencia_T1 (_string))
 sem_TipoSentencia ((TipoSentencia_T2 (_string))) =
     (sem_TipoSentencia_T2 (_string))
-sem_TipoSentencia ((TipoSentencia_T3 (_string) (_parametros))) =
-    (sem_TipoSentencia_T3 (_string) ((sem_Parametros (_parametros))))
-sem_TipoSentencia_T1 :: (String) ->
-                        (T_TipoSentencia)
-sem_TipoSentencia_T1 (_string) =
-    let 
-    in  ("cout <<" ++ _string ++ ";")
+sem_TipoSentencia ((TipoSentencia_T3 (_string) (_string2) (_string3))) =
+    (sem_TipoSentencia_T3 (_string) (_string2) (_string3))
 sem_TipoSentencia_T2 :: (String) ->
                         (T_TipoSentencia)
 sem_TipoSentencia_T2 (_string) =
     let 
-    in  ("stoi (" ++ _string ++ ");")
+    in  ("stoi(" ++ _string ++ ");")
 sem_TipoSentencia_T3 :: (String) ->
-                        (T_Parametros) ->
+                        (String2) ->
+                        (String3) ->
                         (T_TipoSentencia)
-sem_TipoSentencia_T3 (_string) (_parametros) =
-    let ( _parametros_cod,_parametros_d,_parametros_k,_parametros_u) =
-            (_parametros )
-    in  (_string ++ "(" ++ _parametros_cod ++ ");")
+sem_TipoSentencia_T3 (_string) (_string2) (_string3) =
+    let 
+    in  ("" ++ _string ++ "(" ++ _string2 ++ ", " ++ _string3 ++ ");")
 

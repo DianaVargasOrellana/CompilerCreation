@@ -1,38 +1,44 @@
-int suma(a,b){
- int resp = a+b
+#include <iostream>
+using namespace std;
+int suma(int a, int b){
+ int resp = a+b;
  return resp;
 }
 
-int resta(a,b){
- int resp = a-b
+int resta(int a, int b){
+ int resp = a-b;
  return resp;
 }
 
-int multiplicacion(a,b){
- int resp = a*b
+int multiplicacion(int a, int b){
+ int resp = a*b;
  return resp;
 }
 
-int division(a,b){
+int division(int a, int b){
  int resp;
  if(b>0){
-   resp = a/b
+   resp = a/b;
  } else {
-   resp = 0
+   resp = 0;
    cout <<"No se puede dividir"<< endl ;
  }
-return resp
+return resp;
 }
 
-int mian() {
-   num1Str = cout <<"Ingresa el primer numero: ";
-   num2Str = cout <<"Ingresa el segundo numero: ";
-   num1 = stoi (num1Str);
-   num2 = stoi (num2Str);
-   sumaresp = suma(num1,num2);
-   restaresp = resta(num1,num2);
-   multiplicacionresp = multiplicacion(num1,num2);
-   divisionresp = division(num1,num2);
+int main() {
+   string num1Str;
+   cout << "Ingresa el primer numero: "; 
+   cin >> num1Str;
+   string num2Str;
+   cout << "Ingresa el segundo numero: "; 
+   cin >> num2Str;
+   int num1 = stoi(num1Str);
+   int num2 = stoi(num2Str);
+   int sumaresp = suma(num1, num2);
+   int restaresp = resta(num1, num2);
+   int multiplicacionresp = multiplicacion(num1, num2);
+   int divisionresp = division(num1, num2);
    cout << "La suma es:" << sumaresp<< endl ;
    cout << "La resta es:" << restaresp<< endl ;
    cout << "La multiplicacion es:" << multiplicacionresp<< endl ;

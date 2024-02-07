@@ -28,10 +28,10 @@ pSentencias = sem_Sentencias_Se <$> pSentencia <*> pSentencias
 
 pSentencia = sem_Sentencia_Sen <$> pIdent <* pOpClave "=" <*> pTipoSentencia
          <|> sem_Sentencia_Sen1 <$ pPalClave "print" <* pOpClave "(" <*> pCadena <* pSimbolo "," <*> pIdent <* pOpClave ")"                  
+         <|> sem_Sentencia_Sen2 <$> pIdent <* pOpClave "=" <* pPalClave "input" <* pOpClave "(" <*> pCadena <* pOpClave ")" 
 
-pTipoSentencia = sem_TipoSentencia_T1 <$ pPalClave "input" <* pOpClave "(" <*> pCadena <* pOpClave ")"
-               <|> sem_TipoSentencia_T2 <$ pPalClave "int" <* pOpClave "(" <*> pIdent <* pOpClave ")"
-               <|> sem_TipoSentencia_T3 <$> pIdent <* pOpClave "(" <*> pParametros <* pOpClave ")"                                                   
+pTipoSentencia =  sem_TipoSentencia_T2 <$ pPalClave "int" <* pOpClave "(" <*> pIdent <* pOpClave ")"
+               <|> sem_TipoSentencia_T3 <$> pIdent <* pOpClave "(" <*> pIdent <* pSimbolo "," <*> pIdent  <* pOpClave ")"                                                   
 
 pInicio = sem_Inicio_In <$ pPalClave "if" <* pOpClave "__" <* pPalClave "name" <* pOpClave "__" <* pOpClave "==" <*> pCadena <* pSimbolo ":" <* pPalClave "main" <* pOpClave "()"        
 

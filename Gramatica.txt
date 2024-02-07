@@ -1,0 +1,30 @@
+Programa => Funciones Main Inicio
+
+Funciones => Funcion Funciones
+		| Vacío
+
+Funcion => “def” Ident (Parametros) : CodFuncion
+
+Parametros => Ident , Ident
+
+CodFuncion => Ident = Expresion “return” Ident
+		| “if” Expresion : CodCondicional “else”: CodCondElse “return”  Ident
+
+CodCondicional => Ident = Expresion
+
+CodCondElse => Ident = Cadena
+
+Main => “def” “main”(): Sentencias
+
+Sentencias => Sentencia Sentencias
+              |Vacío
+
+Sentencia => Ident = TipoSentencia
+             | "print" (cadena, ident)                 
+             | Ident String
+
+TipoSentencia => “input” (Cadena)
+					| “int” (ident)
+					| Ident (Parametros)
+
+Inicio => “if” __”name”__ = Cadena : “main”()
