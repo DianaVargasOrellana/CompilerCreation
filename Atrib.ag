@@ -1,0 +1,156 @@
+{
+type Lista = [String]
+type String2 = String
+
+fencontrar y t@(x:xs) | y `elem` t = [] 
+                      | otherwise = y:[] 
+
+captura t@(x:xs) (y:ys) = fencontrar y t ++ captura t ys 
+captura [] (y:ys) = []
+captura t@(x:xs) [] = [] 
+
+duplicado (x:xs) | x `elem` xs = [x] ++ duplicado xs 
+                 | otherwise = duplicado xs
+duplicado [] = []
+}
+
+DATA Programa | Pro Funciones Main Inicio
+          
+DATA Funciones | Fu Funcion Funciones 
+               | VacioA 
+
+DATA Funcion | Fue String Parametros CodFuncion
+
+DATA Parametros | Pa String String2
+        
+
+DATA CodFuncion | Co1 String Expresion String2                
+                | Co2 Expresion CodCondicional CodCondResp String
+
+DATA CodCondicional | CodCon1 String Expresion
+                       
+DATA CodCondResp | Resp String String2
+
+DATA Main | Ma Sentencias 
+
+DATA Sentencias | Se Sentencia Sentencias 
+                  | VacioC
+
+DATA Sentencia | Sen String TipoSentencia
+               | Sen1 String String2     
+
+DATA TipoSentencia | T1 String
+                   | T2 String
+                   | T3 String Parametros 
+
+DATA Inicio | In String  
+
+DATA Expresion | Expre String String2
+               | Expre1 String String2
+               | Expre2 String String2
+               | Expre3 String String2
+               | Expre4 String   
+
+
+ATTR Programa       [   |   |  u1:Lista d:Lista k:Lista cod:String]
+ATTR Funciones      [   |   |  u1:Lista d:Lista k:Lista cod:String] 
+ATTR Funcion        [   |   |  d:Lista u1:Lista k:Lista cod:String]
+ATTR Parametros     [   |   |  d:Lista u:Lista  k:Lista cod:String]
+ATTR CodFuncion     [   |   |  d:Lista u:Lista cod:String]
+ATTR CodCondicional [   |   |  d:Lista u:Lista cod:String] 
+ATTR CodCondResp    [   |   |  d:Lista cod:String] 
+ATTR Main           [   |   |  cod:String]                   
+ATTR Sentencias     [   |   |  cod:String]
+ATTR Sentencia      [   |   |  cod:String]    
+ATTR TipoSentencia  [   |   |  cod:String]
+ATTR Expresion      [   |   |  u:Lista cod:String]    
+
+
+SEM Programa 
+| Pro lhs.u1 = @funciones.u1
+      lhs.d = @funciones.d
+      lhs.k = @funciones.k 
+      lhs.cod = @funciones.cod ++ @main.cod 
+          
+SEM Funciones 
+| Fu lhs.d = @funcion.d ++ @funciones.d 
+     lhs.u1 = @funcion.u1 ++ @funciones.u1
+     lhs.k = @funcion.k ++ @funciones.k 
+     lhs.cod = @funcion.cod ++ @funciones.cod  
+| VacioA lhs.d = []
+         lhs.u1 = []
+         lhs.k = []
+         lhs.cod = ""     
+
+SEM Funcion 
+| Fue  lhs.d = @parametros.d ++ @codFuncion.d
+       lhs.u1 = captura (@parametros.d ++ @codFuncion.d)  @codFuncion.u
+       lhs.k = duplicado @parametros.k
+       lhs.cod = "int " ++ @string ++ "(" ++ @parametros.cod ++ ")" ++
+                 "{" ++ "\n" ++ 
+                 @codFuncion.cod ++ "\n"
+                  ++"}"  ++ "\n\n"      
+
+SEM Parametros 
+| Pa  lhs.d = @string:[] ++ @string2:[]
+      lhs.u = @string:[] ++ @string2:[]
+      lhs.k = @string:[] ++ @string2:[]
+      lhs.cod = @string ++ "," ++ @string2 
+        
+SEM CodFuncion 
+| Co1 lhs.d = @string:[]
+      lhs.u = @expresion.u ++ @string2:[]
+      lhs.cod = " int " ++ @string ++ " = " ++ @expresion.cod ++ "\n" ++
+                " return " ++ @string2 ++ ";"  
+| Co2 lhs.d = @codCondicional.d
+      lhs.u = @string:[]
+      lhs.cod =  " int " ++ @string ++ ";" ++ "\n" ++
+                  " if" ++ "(" ++ @expresion.cod ++ "){" ++ "\n" ++
+                  @codCondicional.cod ++ "\n" ++
+                  " } else {" ++ "\n" ++ 
+                  @codCondResp.cod ++ "\n" ++
+                  " }" ++ "\n" ++
+                  "return " ++ @string
+
+SEM CodCondicional 
+| CodCon1 lhs.d = @string:[]
+          lhs.u = @expresion.u
+          lhs.cod = "   " ++ @string ++ " = " ++ @expresion.cod  
+
+SEM CodCondResp
+| Resp lhs.d = @string:[]
+       lhs.cod = "   " ++ @string ++ " = 0" ++ "\n" ++    
+                 "   " ++ "cout <<" ++ @string2 ++ "<< endl ;"
+
+SEM Main 
+| Ma lhs.cod = "int mian() {" ++ "\n" ++
+                   @sentencias.cod ++
+                    "}"
+
+SEM Sentencias 
+| Se        lhs.cod = @sentencia.cod ++ "\n" ++ @sentencias.cod 
+| VacioC    lhs.cod = ""
+
+SEM Sentencia 
+| Sen       lhs.cod = "   " ++ @string ++ " = " ++ @tipoSentencia.cod
+| Sen1      lhs.cod = "   cout << " ++ @string ++ " << " ++ @string2 ++ "<< endl ;"     
+
+SEM TipoSentencia 
+| T1 lhs.cod =  "cout <<" ++ @string ++ ";"
+| T2 lhs.cod = "stoi (" ++ @string ++ ");" 
+| T3 lhs.cod = @string ++ "(" ++ @parametros.cod ++ ");"                      
+ 
+
+SEM Expresion 
+| Expre lhs.u = @string:[] ++ @string2:[]
+        lhs.cod = @string ++ "+" ++ @string2    
+| Expre1  lhs.u = @string:[] ++ @string2:[]
+          lhs.cod = @string ++ "-" ++ @string2   
+| Expre2  lhs.u = @string:[] ++ @string2:[]
+          lhs.cod = @string ++ "*" ++ @string2   
+| Expre3  lhs.u = @string:[] ++ @string2:[]
+          lhs.cod = @string ++ "/" ++ @string2   
+| Expre4  lhs.u = @string:[] 
+          lhs.cod = @string ++ ">0"  
+
+
